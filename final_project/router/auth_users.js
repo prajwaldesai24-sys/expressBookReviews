@@ -13,7 +13,7 @@ const authenticatedUser = (username, password) => {
     return users.some(user => user.username === username && user.password === password);
 };
 
-// Task 7: Only registered users can login
+// Task 7 / Question 8: Login
 regd_users.post("/login", (req, res) => {
     const { username, password } = req.body;
 
@@ -27,13 +27,13 @@ regd_users.post("/login", (req, res) => {
             accessToken,
             username
         };
-        return res.status(200).send("User successfully logged in");
+        return res.status(200).send("Customer successfully logged in");
     } else {
         return res.status(401).json({ message: "Invalid Login. Check username and password" });
     }
 });
 
-// Task 8: Add or modify a book review
+// Task 8 / Question 9: Add/Modify Review (Returns confirmation AND reviews object)
 regd_users.put("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
     const review = req.query.review;
@@ -48,13 +48,13 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
             books[isbn].reviews = {};
         }
         books[isbn].reviews[username] = review;
-        return res.status(200).send(`The review for the book with ISBN ${isbn} has been added/updated.`);
+        return res.status(200).send(`The review for the book with ISBN ${isbn} has been added/updated.\n` + JSON.stringify(books[isbn].reviews, null, 2));
     } else {
         return res.status(404).json({ message: `Book with ISBN ${isbn} not found` });
     }
 });
 
-// Task 9: Delete a book review
+// Task 9 / Question 10: Delete Review (Exact message: "Review for ISBN 1 deleted.")
 regd_users.delete("/auth/review/:isbn", (req, res) => {
     const isbn = req.params.isbn;
     const username = req.session.authorization ? req.session.authorization.username : null;
@@ -62,7 +62,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
     if (books[isbn]) {
         if (books[isbn].reviews && books[isbn].reviews[username]) {
             delete books[isbn].reviews[username];
-            return res.status(200).send(`Reviews for the ISBN ${isbn} posted by the user ${username} deleted.`);
+            return res.status(200).send(`Review for ISBN ${isbn} deleted.`);
         } else {
             return res.status(404).json({ message: `No review found under username ${username} for ISBN ${isbn}` });
         }
